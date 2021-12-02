@@ -1,0 +1,25 @@
+const { merge } = require("webpack-merge"); // is a function to merge webpack.common with webpack.config
+const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
+
+const packageJson = require("../package.json");
+const commonConfig = require("./webpack.common");
+
+const prodConfig = {
+  mode: "production",
+  output: {
+    filename: '[name].[contenthash].js'
+  },
+  plugins: [
+    new ModuleFederationPlugin({
+      name: "marketing",    // require for REMOTE 
+      filename: "remoteEntry.js",
+      exposes: {
+        "./MarketingApp": "./src/bootstrap",
+      },
+      shared: packageJson.dependencies,
+    })
+  ],
+};
+
+module.exports = merge(commonConfig, prodConfig);
+// we set prodConfig as a 2nd parameter to override(has priority) any similar config in commonConfig
